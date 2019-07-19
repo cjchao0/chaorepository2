@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--shiro工厂过滤器-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!-- override these for application-specific URLs if you like:
+        <property name="loginUrl" value="/login.jsp"/>
+        <property name="successUrl" value="/home.jsp"/>
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"/> -->
+        <!-- The 'filters' property is not necessary since any declared javax.servlet.Filter bean  -->
+        <!-- defined will be automatically acquired and available via its beanName in chain        -->
+        <!-- definitions, but you can perform instance overrides or name aliases here if you like: -->
+        <!-- <property name="filters">
+            <util:map>
+                <entry key="anAlias" value-ref="someFilter"/>
+            </util:map>
+        </property> -->
+
+        <!--配置shiro内置的过滤器,指定哪些资源需要放行,认证,权限校验-->
+        <property name="filterChainDefinitions">
+            <value>
+                <!--先指定放行的资源-->
+                /login.html* = anon
+                <!--其他资源需要校验-->
+                /** = authc
+            </value>
+        </property>
+    </bean>
+
+    <!--配置安全管理器-->
+    <bean class="org.apache.shiro.web.mgt.DefaultWebSecurityManager" id="securityManager">
+        <!--引用自定义的realm-->
+        <property name="realm" ref="authRealm"/>
+    </bean>
+
+    <!--配置自定义Realm域-->
+    <bean class="com.itchao.AuthRealm" id="authRealm">
+        <!--注入凭证管理器-->
+        <property name="credentialsMatcher" ref="credentialsMatcher"/>
+    </bean>
+
+    <!--配置凭证管理器-->
+    <bean class="com.itchao.CredentialsMatcher" id="credentialsMatcher"/>
+</beans>
